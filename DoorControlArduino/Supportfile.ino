@@ -21,8 +21,8 @@ void boardConfig(void)
   boardA.setSwitchMode(SW_USER);    // Switch is not hard stop
   boardA.setOscMode(INT_16MHZ_OSCOUT_16MHZ); // for boardA, we want 16MHz
                                     //  internal osc, 16MHz out.
-  boardA.setAccKVAL(255);           // We'll tinker with these later, if needed.
-  boardA.setDecKVAL(255);
-  boardA.setRunKVAL(255);
-  boardA.setHoldKVAL(32);           // This controls the holding current; keep it low.
+  boardA.setAccKVAL(10);           // We'll tinker with these later, if needed.
+  boardA.setDecKVAL(10);
+  boardA.setRunKVAL(80);
+  boardA.setHoldKVAL(0);           // This controls the holding current; keep it low.
 }
