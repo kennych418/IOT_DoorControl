@@ -14,15 +14,17 @@ void boardConfig(void)
   boardA.setAcc(_MAXSPEED);             // accelerate at _MAXSPEED steps/s/s
   boardA.setDec(_MAXSPEED);
   boardA.setSlewRate(SR_530V_us);   // Upping the edge speed increases torque.
-  boardA.setOCThreshold(OC_4875mA);  // OC threshold 2250mA
+  boardA.setOCThreshold(OC_6000mA);  // OC threshold 2250mA
   boardA.setPWMFreq(PWM_DIV_2, PWM_MUL_2); // 31.25kHz PWM freq
   boardA.setOCShutdown(OC_SD_DISABLE); // shutdown on OC
-  boardA.setVoltageComp(VS_COMP_DISABLE); // don't compensate for motor V
+  boardA.setLoSpdOpt(true);
+  boardA.setParam(STALL_TH,0x7f);
+  boardA.setVoltageComp(VS_COMP_ENABLE); // don't compensate for motor V
   boardA.setSwitchMode(SW_USER);    // Switch is not hard stop
   boardA.setOscMode(INT_16MHZ_OSCOUT_16MHZ); // for boardA, we want 16MHz
                                     //  internal osc, 16MHz out.
-  boardA.setAccKVAL(10);           // We'll tinker with these later, if needed.
-  boardA.setDecKVAL(10);
-  boardA.setRunKVAL(80);
+  boardA.setAccKVAL(20);           // We'll tinker with these later, if needed.
+  boardA.setDecKVAL(20);
+  boardA.setRunKVAL(100);
   boardA.setHoldKVAL(0);           // This controls the holding current; keep it low.
 }
