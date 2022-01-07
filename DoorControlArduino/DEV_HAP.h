@@ -32,9 +32,12 @@ struct DEV_DOOR : Service::Door {
     Serial.println("Play it!");
     //wantYouGone();
     board->run(FWD, 3);
-    delay(10000);
+    for(int i = 0; i < 10; i++){  
+      delay(1000);
+      Serial.print("Status: ");
+      Serial.println(board->getStatus());
+    }
     board->softStop();
-    while (board->busyCheck());
     Serial.println("Done playing!");
     return(true); 
   }
