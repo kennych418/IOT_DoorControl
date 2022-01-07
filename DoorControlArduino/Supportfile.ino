@@ -1,6 +1,6 @@
 // Support functions.
 
-#define _MAXSPEED 2
+#define _MAXSPEED 10000
 
 void boardConfig(void)
 {
@@ -10,9 +10,9 @@ void boardConfig(void)
                                     //  second paramter ignored.
   boardA.configStepMode(STEP_FS);   // 0 microsteps per step
   boardA.setMaxSpeed(_MAXSPEED);        // _MAXSPEED steps/s max
-  boardA.setFullSpeed(_MAXSPEED/2);       // microstep below _MAXSPEED steps/s
-  boardA.setAcc(_MAXSPEED/2);             // accelerate at _MAXSPEED steps/s/s
-  boardA.setDec(_MAXSPEED/2);
+  boardA.setFullSpeed(_MAXSPEED);       // microstep below _MAXSPEED steps/s
+  boardA.setAcc(_MAXSPEED);             // accelerate at _MAXSPEED steps/s/s
+  boardA.setDec(_MAXSPEED);
   boardA.setSlewRate(SR_530V_us);   // Upping the edge speed increases torque.
   boardA.setOCThreshold(OC_2250mA);  // OC threshold 2250mA
   boardA.setPWMFreq(PWM_DIV_2, PWM_MUL_2); // 31.25kHz PWM freq
