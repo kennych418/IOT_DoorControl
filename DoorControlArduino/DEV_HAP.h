@@ -26,7 +26,7 @@ struct DEV_DOOR : Service::Door {
     Serial.print("Target Position: ");
     Serial.print(TargetPosition->getNewVal());
     Serial.println("");
-    board->move(FWD, 100);
+    board->move(FWD, 1000);
     return(true);                                 
   }
 };
