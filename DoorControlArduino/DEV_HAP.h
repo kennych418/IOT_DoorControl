@@ -22,19 +22,12 @@ struct DEV_DOOR : Service::Door {
   } 
 
   boolean update(){            
-    //Serial.println("Action Received");
-    //Serial.print("Target Position: ");
-    //Serial.print(TargetPosition->getNewVal());
-    //Serial.println("");
-    //board->move(FWD, 100);
-    //return(true);
-
-    Serial.println("Play it!");
-    board->run(FWD, 3);
-    delay(10000);
-    board->softStop();
-    while (boardA.busyCheck());
-    Serial.println("Done playing!");
+    Serial.println("Action Received");
+    Serial.print("Target Position: ");
+    Serial.print(TargetPosition->getNewVal());
+    Serial.println("");
+    board->move(FWD, 100);
+    return(true);                                 
   }
 };
       
