@@ -8,7 +8,7 @@ void boardConfig(void)
 
   boardA.configSyncPin(BUSY_PIN, 0);// BUSY pin low during operations;
                                     //  second paramter ignored.
-  boardA.configStepMode(STEP_FS_8);   // 0 microsteps per step
+  boardA.configStepMode(STEP_FS_64);   // 0 microsteps per step
   boardA.setMaxSpeed(_MAXSPEED);        // _MAXSPEED steps/s max
   boardA.setFullSpeed(_MAXSPEED);       // microstep below _MAXSPEED steps/s
   boardA.setAcc(_MAXSPEED);             // accelerate at _MAXSPEED steps/s/s
