@@ -5,16 +5,19 @@
 
 // HERE'S WHERE WE DEFINE OUR NEW LED SERVICE!
 
+#define PULSE 4
+#define ENABLE 17
+#define DIR 16
+
 struct DEV_DOOR : Service::Door {               
 
-  AutoDriver* board;                                       
+  //AutoDriver* board;                                       
   SpanCharacteristic *CurrentPosition;                        
   SpanCharacteristic *TargetPosition;
   SpanCharacteristic *PositionState;
   SpanCharacteristic *ObstructionDetected;
   
-  DEV_DOOR(AutoDriver* board) : Service::Door(){
-    this->board=board; 
+  DEV_DOOR() : Service::Door(){
     CurrentPosition=new Characteristic::CurrentPosition();              
     TargetPosition=new Characteristic::TargetPosition();
     PositionState=new Characteristic::PositionState();
@@ -29,17 +32,31 @@ struct DEV_DOOR : Service::Door {
     //board->move(FWD, 1000);
     //return(true);        
 
-    Serial.println("Play it!");
-    //wantYouGone();
-    board->run(FWD, 3);
-    for(int i = 0; i < 10; i++){  
-      delay(1000);
-      Serial.print("Status: ");
-      Serial.println(board->getStatus());
+    //Serial.println("Play it!");
+    ////wantYouGone();
+    //board->run(FWD, 3);
+    //for(int i = 0; i < 10; i++){  
+    //  delay(1000);
+    //  Serial.print("Status: ");
+    //  Serial.println(board->getStatus());
+    //}
+    //board->softStop();
+    //Serial.println("Done playing!");
+    //return(true); 
+  
+    Serial.println("Action Received");
+    Serial.print("Target Position: ");
+    Serial.print(TargetPosition->getNewVal());
+    Serial.println("");
+    digitalWrite(ENABLE,LOW);
+    for(int i = 0; i < 10; i++){
+      digitalWrite(PULSE, HIGH);
+      delay(200);
+      digitalWrite(PULSE, LOW);
+      delay(200);
     }
-    board->softStop();
-    Serial.println("Done playing!");
-    return(true); 
+    digitalWrite(ENABLE,HIGH);
+    return(true);        
   }
 };
       
