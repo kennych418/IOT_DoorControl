@@ -31,12 +31,13 @@ struct DEV_DOOR : Service::Door {
     Serial.print("Target Position: ");
     Serial.print(TargetPosition->getNewVal());
     Serial.println("");
+    digitalWrite(DIR_PIN,CurrentPosition->getNewVal()>TargetPosition->getNewVal());
     digitalWrite(ENABLE_PIN,LOW);
     ledcWrite(0, 127); //PULSE ON
     delay(3000);
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
-    CurrentPosition->setVal(TargetPosition->getNewVal())
+    CurrentPosition->setVal(TargetPosition->getNewVal());
     return(true);        
   }
 };
