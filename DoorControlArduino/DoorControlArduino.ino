@@ -2,37 +2,21 @@
 #include "DEV_HAP.h"
 
 #define PULSE 4
+#define PULSE_FREQ 5
+#define PULSE_RES 8
 #define ENABLE 17
 #define DIR 16
-
-//AutoDriver boardA(0, CS, RESET);
 
 void setup()
 {
   Serial.begin(115200);  
 
-  //Initialize SPI and AutoDriver Library
-  //pinMode(RESET, OUTPUT);
-  //pinMode(MOSI, OUTPUT);
-  //pinMode(MISO, INPUT);
-  //pinMode(SCLK, OUTPUT);
-  //pinMode(CS, OUTPUT);
-  
-  //digitalWrite(CS, HIGH);
-  //digitalWrite(RESET, LOW);       
-  //digitalWrite(RESET, HIGH);      
-  
-  //SPI.begin();
-  //SPI.setDataMode(SPI_MODE3);
-  //boardConfig();  
-
   //Initialize Big Stepper Driver
   pinMode(PULSE, OUTPUT);
   pinMode(ENABLE, OUTPUT);
   pinMode(DIR, OUTPUT);
-
   digitalWrite(ENABLE, HIGH);
-  digitalWrite(DIR, LOW);
+  digitalWrite(DIR, HIGH);
 
   //Initialize HomeSpan
   homeSpan.begin(Category::Doors,"Smart Door");
@@ -50,7 +34,7 @@ void setup()
     new Service::HAPProtocolInformation();      
       new Characteristic::Version("1.1.0");   
 
-    new DEV_DOOR();
+    new DEV_DOOR(PULSE, PULSE_FREQ, PULSE_RES, ENABLE, DIR);
 }
 
 // HOMESPAN IMPORTANT: send 'F' in terminal to factory reset

@@ -5,57 +5,37 @@
 
 // HERE'S WHERE WE DEFINE OUR NEW LED SERVICE!
 
-#define PULSE 4
-#define ENABLE 17
-#define DIR 16
-
-struct DEV_DOOR : Service::Door {               
-
-  //AutoDriver* board;                                       
+struct DEV_DOOR : Service::Door {                                                    
   SpanCharacteristic *CurrentPosition;                        
   SpanCharacteristic *TargetPosition;
   SpanCharacteristic *PositionState;
   SpanCharacteristic *ObstructionDetected;
+  int ENABLE_PIN = 0;
+  int DIR_PIN = 0;
+  int PULSE_PIN = 0;
   
-  DEV_DOOR() : Service::Door(){
+  DEV_DOOR(int PULSE, int PULSE_FREQ, int PULSE_RES, int ENABLE, int DIR) : Service::Door(){
     CurrentPosition=new Characteristic::CurrentPosition();              
     TargetPosition=new Characteristic::TargetPosition();
     PositionState=new Characteristic::PositionState();
-    ObstructionDetected=new Characteristic::ObstructionDetected();                           
+    ObstructionDetected=new Characteristic::ObstructionDetected();   
+    ENABLE_PIN = ENABLE;
+    DIR_PIN = DIR;
+    PULSE_PIN = PULSE;
+    ledcSetup(0, PULSE_FREQ, PULSE_RES);         
+    ledcAttachPin(PULSE_PIN, 0);               
   } 
 
   boolean update(){            
-    //Serial.println("Action Received");
-    //Serial.print("Target Position: ");
-    //Serial.print(TargetPosition->getNewVal());
-    //Serial.println("");
-    //board->move(FWD, 1000);
-    //return(true);        
-
-    //Serial.println("Play it!");
-    ////wantYouGone();
-    //board->run(FWD, 3);
-    //for(int i = 0; i < 10; i++){  
-    //  delay(1000);
-    //  Serial.print("Status: ");
-    //  Serial.println(board->getStatus());
-    //}
-    //board->softStop();
-    //Serial.println("Done playing!");
-    //return(true); 
-  
     Serial.println("Action Received");
     Serial.print("Target Position: ");
     Serial.print(TargetPosition->getNewVal());
     Serial.println("");
-    digitalWrite(ENABLE,LOW);
-    for(int i = 0; i < 10; i++){
-      digitalWrite(PULSE, HIGH);
-      delay(200);
-      digitalWrite(PULSE, LOW);
-      delay(200);
-    }
-    digitalWrite(ENABLE,HIGH);
+    digitalWrite(ENABLE_PIN,LOW);
+    ledcWrite(0, 127); //PULSE ON
+    delay(3000);
+    ledcWrite(0, 0);   //PULSE OFF
+    digitalWrite(ENABLE_PIN,HIGH);
     return(true);        
   }
 };
