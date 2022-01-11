@@ -2,7 +2,7 @@
 #include "DEV_HAP.h"
 
 #define PULSE 4
-#define PULSE_FREQ 5
+#define PULSE_FREQ 20
 #define PULSE_RES 8
 #define ENABLE 17
 #define DIR 16

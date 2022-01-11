@@ -36,6 +36,7 @@ struct DEV_DOOR : Service::Door {
     delay(3000);
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
+    CurrentPosition->setVal(TargetPosition->getNewVal())
     return(true);        
   }
 };
