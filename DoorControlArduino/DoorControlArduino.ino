@@ -9,7 +9,7 @@
 
 #define PHASE_A 26
 #define PHASE_B 27
-volatile unsigned int temp, counter = 0;
+volatile int counter = 0;
 
 void setup()
 {
@@ -44,28 +44,22 @@ void setup()
     new Service::HAPProtocolInformation();      
       new Characteristic::Version("1.1.0");   
 
-    new DEV_DOOR(PULSE, PULSE_FREQ, PULSE_RES, ENABLE, DIR);
+    new DEV_DOOR(PULSE, PULSE_FREQ, PULSE_RES, ENABLE, DIR, &counter);
 }
 
 // HOMESPAN IMPORTANT: send 'F' in terminal to factory reset
 void loop()
 {
   homeSpan.poll();
-  if( counter != temp ){
-  Serial.print("Angle: ");
-  float angle = 360*counter/1200;
-  Serial.println (angle);
-  temp = counter;
-  }
 }
 
 void ai0() {
   // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
   // Check pin 3 to determine the direction
   if(digitalRead(PHASE_B)==LOW) {
-  counter++;
-  }else{
   counter--;
+  }else{
+  counter++;
   }
   }
    
@@ -73,8 +67,8 @@ void ai0() {
   // ai0 is activated if DigitalPin nr 3 is going from LOW to HIGH
   // Check with pin 2 to determine the direction
   if(digitalRead(PHASE_A)==LOW) {
-  counter--;
-  }else{
   counter++;
+  }else{
+  counter--;
   }
   }

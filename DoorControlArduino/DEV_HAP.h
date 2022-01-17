@@ -13,8 +13,11 @@ struct DEV_DOOR : Service::Door {
   int ENABLE_PIN = 0;
   int DIR_PIN = 0;
   int PULSE_PIN = 0;
-  
-  DEV_DOOR(int PULSE, int PULSE_FREQ, int PULSE_RES, int ENABLE, int DIR) : Service::Door(){
+  float CurrentAngle = 0;
+  float TargetAngle = 0;
+  volatile int* counter;
+
+  DEV_DOOR(int PULSE, int PULSE_FREQ, int PULSE_RES, int ENABLE, int DIR, volatile int* encodercounter) : Service::Door(){
     CurrentPosition=new Characteristic::CurrentPosition();              
     TargetPosition=new Characteristic::TargetPosition();
     PositionState=new Characteristic::PositionState();
@@ -23,18 +26,25 @@ struct DEV_DOOR : Service::Door {
     DIR_PIN = DIR;
     PULSE_PIN = PULSE;
     ledcSetup(0, PULSE_FREQ, PULSE_RES);         
-    ledcAttachPin(PULSE_PIN, 0);               
+    ledcAttachPin(PULSE_PIN, 0);
+    counter = encodercounter;            
   } 
 
   boolean update(){            
-    Serial.println("Action Received");
-    Serial.print("Target Position: ");
-    Serial.print(TargetPosition->getNewVal());
-    Serial.println("");
-    digitalWrite(DIR_PIN,CurrentPosition->getNewVal()>TargetPosition->getNewVal());
+    //Serial.println("Action Received");
+    //Serial.print("Target Position: ");
+    //Serial.print(TargetPosition->getNewVal());
+    //Serial.println("");
+    
+    //Open = 100, Closed = 0
+    TargetAngle = TargetPosition->getNewVal() * 0.7;
+    CurrentAngle = *counter * 360/1200;
+    bool dir = CurrentAngle > TargetAngle;
+    digitalWrite(DIR_PIN, dir);
     digitalWrite(ENABLE_PIN,LOW);
-    ledcWrite(0, 127); //PULSE ON
-    delay(3000);
+    ledcWrite(0, 127); //PULSE ON 50% duty cycle
+    while((CurrentAngle > TargetAngle) == dir)
+      CurrentAngle = *counter * 360/1200;
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
     CurrentPosition->setVal(TargetPosition->getNewVal());
