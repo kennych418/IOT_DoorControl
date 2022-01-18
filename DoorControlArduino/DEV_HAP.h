@@ -45,7 +45,7 @@ struct DEV_DOOR : Service::Door {
       ledcWrite(0, 127); //PULSE ON 50% duty cycle
       delay(3000);
       bool bounced = false;
-      int previousAngle = CurrentAngle;
+      float previousAngle = CurrentAngle;
       unsigned long previousTime = millis();
       while(!bounced){
         CurrentAngle = *counter * 360/1200;
