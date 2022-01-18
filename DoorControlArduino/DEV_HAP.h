@@ -13,8 +13,6 @@ struct DEV_DOOR : Service::Door {
   int ENABLE_PIN = 0;
   int DIR_PIN = 0;
   int PULSE_PIN = 0;
-  float CurrentAngle = 0;
-  float TargetAngle = 0;
   volatile int* counter;
 
   DEV_DOOR(int PULSE, int PULSE_FREQ, int PULSE_RES, int ENABLE, int DIR, volatile int* encodercounter) : Service::Door(){
@@ -32,36 +30,41 @@ struct DEV_DOOR : Service::Door {
 
   boolean update(){
     //Open = 100, Closed = 0
-    TargetAngle = TargetPosition->getNewVal() * 0.85;
-    CurrentAngle = *counter * 360/1200;
-    bool dir = CurrentAngle > TargetAngle;
-    if(TargetAngle == 0){ //Wait 3 seconds then check for bounceback/nochange
-      digitalWrite(DIR_PIN, true); //Always swing towards CurrentAngle > 0
-      digitalWrite(ENABLE_PIN,LOW);
-      ledcWrite(0, 127); //PULSE ON 50% duty cycle
-      bool bounced = false;
-      float previousAngle = CurrentAngle;
-      unsigned long previousTime = millis();
-      while(!bounced && ((CurrentAngle > TargetAngle) == dir)){
-        CurrentAngle = *counter * 360/1200;
-        if((CurrentAngle - previousAngle > 0.6))
-          bounced = true;
-        else
-          previousAngle = CurrentAngle;
-      }
+    float TargetAngle = TargetPosition->getNewVal() * 0.85;
+    float CurrentAngle = *counter * 360/1200;
+
+    bool obstructed = false;
+    float previousAngle = CurrentAngle;
+    bool dir = 0;
+    float obstructionAngle = 0;
+    if(TargetAngle == 0)
+      dir = true;  //Always swing towards CurrentAngle > 0
+    else
+      dir = CurrentAngle > TargetAngle;
+    if(dir)
+      obstructionAngle = 0.6;
+    else
+      obstructionAngle = -0.6;
+
+    digitalWrite(DIR_PIN, dir);
+    digitalWrite(ENABLE_PIN,LOW);
+    ledcWrite(0, 127); //PULSE ON 50% duty cycle
+
+    while(!obstructed && ((CurrentAngle > TargetAngle) == dir || TargetAngle == 0)){
+      CurrentAngle = *counter * 360/1200;
+
+      if((CurrentAngle - previousAngle) > obstructionAngle)
+        obstructed = true;
+      else
+        previousAngle = CurrentAngle;
+    }
+
+    if(TargetAngle == 0)
       *counter = 0;
-    }
-    else{
-      digitalWrite(DIR_PIN, dir);
-      digitalWrite(ENABLE_PIN,LOW);
-      ledcWrite(0, 127); //PULSE ON 50% duty cycle
-      while((CurrentAngle > TargetAngle) == dir)
-        CurrentAngle = *counter * 360/1200;
-    }
     
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
-    delay(2000); //Maybe wait for EM stuff to stop?
+
     CurrentPosition->setVal(TargetPosition->getNewVal());
     return(true);        
   }
