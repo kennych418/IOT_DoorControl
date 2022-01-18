@@ -30,24 +30,19 @@ struct DEV_DOOR : Service::Door {
     counter = encodercounter;            
   } 
 
-  boolean update(){            
+  boolean update(){
     //Open = 100, Closed = 0
     TargetAngle = TargetPosition->getNewVal() * 0.85;
     CurrentAngle = *counter * 360/1200;
     bool dir = CurrentAngle > TargetAngle;
-    digitalWrite(DIR_PIN, dir);
-    digitalWrite(ENABLE_PIN,LOW);
-    ledcWrite(0, 127); //PULSE ON 50% duty cycle
-    
     if(TargetAngle == 0){ //Wait 3 seconds then check for bounceback/nochange
       digitalWrite(DIR_PIN, true); //Always swing towards CurrentAngle > 0
       digitalWrite(ENABLE_PIN,LOW);
       ledcWrite(0, 127); //PULSE ON 50% duty cycle
-      delay(3000);
       bool bounced = false;
       float previousAngle = CurrentAngle;
       unsigned long previousTime = millis();
-      while(!bounced){
+      while(!bounced && ((CurrentAngle > TargetAngle) == dir)){
         CurrentAngle = *counter * 360/1200;
         if((CurrentAngle - previousAngle > 0.6))
           bounced = true;
@@ -66,7 +61,7 @@ struct DEV_DOOR : Service::Door {
     
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
-    delay(1000); //Maybe wait for EM stuff to stop?
+    delay(2000); //Maybe wait for EM stuff to stop?
     CurrentPosition->setVal(TargetPosition->getNewVal());
     return(true);        
   }
