@@ -31,20 +31,39 @@ struct DEV_DOOR : Service::Door {
   } 
 
   boolean update(){            
-    //Serial.println("Action Received");
-    //Serial.print("Target Position: ");
-    //Serial.print(TargetPosition->getNewVal());
-    //Serial.println("");
-    
     //Open = 100, Closed = 0
-    TargetAngle = TargetPosition->getNewVal() * 0.7;
+    TargetAngle = TargetPosition->getNewVal() * 0.85;
     CurrentAngle = *counter * 360/1200;
     bool dir = CurrentAngle > TargetAngle;
     digitalWrite(DIR_PIN, dir);
     digitalWrite(ENABLE_PIN,LOW);
     ledcWrite(0, 127); //PULSE ON 50% duty cycle
-    while((CurrentAngle > TargetAngle) == dir)
-      CurrentAngle = *counter * 360/1200;
+    
+    if(TargetAngle == 0){ //Wait 3 seconds then check for bounceback/nochange
+      digitalWrite(DIR_PIN, true); //Always swing towards CurrentAngle > 0
+      digitalWrite(ENABLE_PIN,LOW);
+      ledcWrite(0, 127); //PULSE ON 50% duty cycle
+      delay(3000);
+      bool bounced = false;
+      int previousAngle = CurrentAngle;
+      unsigned long previousTime = millis();
+      while(!bounced){
+        CurrentAngle = *counter * 360/1200;
+        if((CurrentAngle > previousAngle))
+          bounced = true;
+        else
+          previousAngle = CurrentAngle;
+      }
+      CurrentAngle = 0;
+    }
+    else{
+      digitalWrite(DIR_PIN, dir);
+      digitalWrite(ENABLE_PIN,LOW);
+      ledcWrite(0, 127); //PULSE ON 50% duty cycle
+      while((CurrentAngle > TargetAngle) == dir)
+        CurrentAngle = *counter * 360/1200;
+    }
+    
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
     CurrentPosition->setVal(TargetPosition->getNewVal());
