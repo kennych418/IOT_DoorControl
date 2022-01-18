@@ -48,7 +48,7 @@ struct DEV_DOOR : Service::Door {
     while(!obstructed && ((CurrentAngle > TargetAngle) == dir || TargetAngle == 0)){
       CurrentAngle = *counter * 360/1200;
 
-      if((((CurrentAngle-previousAngle) > 0.6) && dir) || (((previousAngle-CurrentAngle) > 0.6) && !dir))
+      if((((CurrentAngle-previousAngle) > 1.0) && dir) || (((previousAngle-CurrentAngle) > 1.0) && !dir))
         obstructed = true;
       else
         previousAngle = CurrentAngle;
