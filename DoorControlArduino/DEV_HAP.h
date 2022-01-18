@@ -49,7 +49,7 @@ struct DEV_DOOR : Service::Door {
       unsigned long previousTime = millis();
       while(!bounced){
         CurrentAngle = *counter * 360/1200;
-        if((CurrentAngle > previousAngle))
+        if((CurrentAngle - previousAngle > 0.6))
           bounced = true;
         else
           previousAngle = CurrentAngle;
