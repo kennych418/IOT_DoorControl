@@ -54,7 +54,7 @@ struct DEV_DOOR : Service::Door {
         else
           previousAngle = CurrentAngle;
       }
-      CurrentAngle = 0;
+      *counter = 0;
     }
     else{
       digitalWrite(DIR_PIN, dir);
@@ -66,6 +66,7 @@ struct DEV_DOOR : Service::Door {
     
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
+    delay(1000); //Maybe wait for EM stuff to stop?
     CurrentPosition->setVal(TargetPosition->getNewVal());
     return(true);        
   }
