@@ -36,15 +36,10 @@ struct DEV_DOOR : Service::Door {
     bool obstructed = false;
     float previousAngle = CurrentAngle;
     bool dir = 0;
-    float obstructionAngle = 0;
     if(TargetAngle == 0)
       dir = true;  //Always swing towards CurrentAngle > 0
     else
       dir = CurrentAngle > TargetAngle;
-    if(dir)
-      obstructionAngle = 0.6;
-    else
-      obstructionAngle = -0.6;
 
     digitalWrite(DIR_PIN, dir);
     digitalWrite(ENABLE_PIN,LOW);
@@ -53,7 +48,7 @@ struct DEV_DOOR : Service::Door {
     while(!obstructed && ((CurrentAngle > TargetAngle) == dir || TargetAngle == 0)){
       CurrentAngle = *counter * 360/1200;
 
-      if((CurrentAngle - previousAngle) > obstructionAngle)
+      if((((CurrentAngle-previousAngle) > 0.6) && dir) || (((previousAngle-CurrentAngle) > 0.6) && !dir))
         obstructed = true;
       else
         previousAngle = CurrentAngle;
