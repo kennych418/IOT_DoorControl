@@ -45,13 +45,21 @@ struct DEV_DOOR : Service::Door {
     digitalWrite(ENABLE_PIN,LOW);
     ledcWrite(0, 127); //PULSE ON 50% duty cycle
 
-    while(!obstructed && ((CurrentAngle > TargetAngle) == dir || TargetAngle == 0)){
+    //wait for moving
+    while(abs(CurrentAngle - previousAngle) < 3)
       CurrentAngle = *counter * 360/1200;
 
-      if((((CurrentAngle-previousAngle) > 1.0) && dir) || (((previousAngle-CurrentAngle) > 1.0) && !dir))
+    int stopcounter = 0;
+    while(!obstructed && ((CurrentAngle > TargetAngle) == dir || TargetAngle == 0)){
+      delay(500);
+      previousAngle = CurrentAngle;
+      CurrentAngle = *counter * 360/1200;
+
+      if(abs(CurrentAngle - previousAngle) < 2) //Taking moving average?
+        stopcounter++;
+      
+      if(stopcounter > 4)
         obstructed = true;
-      else
-        previousAngle = CurrentAngle;
     }
 
     if(TargetAngle == 0)
