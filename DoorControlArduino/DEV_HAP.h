@@ -42,18 +42,19 @@ struct DEV_DOOR : Service::Door {
   }
 
 void loop(){
-  //Report position every minute after update
-  if(millis() - refreshTime > 60000 && CurrentPosition->timeVal() > 60000){
+  //Report position every 10 minutes after update
+  if(millis() - refreshTime > 600000 && CurrentPosition->timeVal() > 600000 && TargetPosition->timeVal() > 600000){
     int refresh = (*counter * 360/1200) * 100 / 85;
     if (refresh > 100)
       refresh = 100;
     else if (refresh < 0)
       refresh = 0;
     CurrentPosition->setVal((uint8_t)refresh);
+    TargetPosition->setVal((uint8_t)refresh);
     refreshTime = millis();
   }
   //Timer Overflow Case
-  if((millis() - refreshTime) < -1) //timer overflow case
+  if((signed long)(millis() - refreshTime) < -1) //timer overflow case
         refreshTime = millis();
 
   if(updated){
@@ -75,7 +76,7 @@ void loop(){
       CurrentAngle = *counter * 360/1200;
       if((millis() - startTime) > 7000) //timer cutoff
         break;
-      if((millis() - startTime) < -1) //timer overflow case
+      if((signed long)(millis() - startTime) < -1) //timer overflow case
         startTime = millis();
     }
 
@@ -93,7 +94,7 @@ void loop(){
 
       if((millis() - startTime) > 20000) //timer cutoff
         break;
-      if((millis() - startTime) < -1) //timer overflow case
+      if((signed long)(millis() - startTime) < -1) //timer overflow case
         startTime = millis();
     }
 
