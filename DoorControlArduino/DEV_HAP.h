@@ -3,29 +3,60 @@ struct DEV_DOOR : Service::Door {
   SpanCharacteristic *TargetPosition;
   SpanCharacteristic *PositionState;
   SpanCharacteristic *ObstructionDetected;
-  int ENABLE_PIN = 0;
-  int DIR_PIN = 0;
-  int PULSE_PIN = 0;
+  
+  int ENABLE_PIN;
+  int DIR_PIN;
+  int PULSE_PIN;
+  
+  float TargetAngle;
+  float CurrentAngle;
+  bool updated;
   volatile int* counter;
+  unsigned long refreshTime;
 
   DEV_DOOR(int PULSE, int PULSE_FREQ, int PULSE_RES, int ENABLE, int DIR, volatile int* encodercounter) : Service::Door(){
     CurrentPosition=new Characteristic::CurrentPosition();              
     TargetPosition=new Characteristic::TargetPosition();
     PositionState=new Characteristic::PositionState();
     ObstructionDetected=new Characteristic::ObstructionDetected();   
+    
     ENABLE_PIN = ENABLE;
     DIR_PIN = DIR;
     PULSE_PIN = PULSE;
     ledcSetup(0, PULSE_FREQ, PULSE_RES);         
     ledcAttachPin(PULSE_PIN, 0);
-    counter = encodercounter;            
+    
+    TargetAngle = 0;
+    CurrentAngle = 0;
+    updated = false;
+    counter = encodercounter;   
+    refreshTime = millis();         
   } 
 
   boolean update(){
     //Open = 100, Closed = 0
-    float TargetAngle = TargetPosition->getNewVal() * 0.85;
-    float CurrentAngle = *counter * 360/1200;
+    TargetAngle = TargetPosition->getNewVal() * 0.85;
+    CurrentAngle = *counter * 360/1200;
+    updated = true;
+    return(true);        
+  }
 
+void loop(){
+  //Report position every minute after update
+  if(millis() - refreshTime > 60000 && CurrentPosition->timeVal() > 60000){
+    int refresh = (*counter * 360/1200) * 100 / 85;
+    if (refresh > 100)
+      refresh = 100;
+    else if (refresh < 0)
+      refresh = 0;
+    CurrentPosition->setVal(refresh);
+    refreshTime = millis();
+  }
+  //Timer Overflow Case
+  if((millis() - refreshTime) < -1) //timer overflow case
+        refreshTime = millis();
+
+  if(updated){
     bool obstructed = false;
     float previousAngle = CurrentAngle;
     bool dir = 0;
@@ -55,7 +86,7 @@ struct DEV_DOOR : Service::Door {
       previousAngle = CurrentAngle;
       CurrentAngle = *counter * 360/1200;
 
-      if(abs(CurrentAngle - previousAngle) < 2) 
+      if(abs(CurrentAngle - previousAngle) < 1.8) 
         stopcounter++;
       if(stopcounter > 2)
         obstructed = true;
@@ -71,9 +102,9 @@ struct DEV_DOOR : Service::Door {
     
     ledcWrite(0, 0);   //PULSE OFF
     digitalWrite(ENABLE_PIN,HIGH);
-
     CurrentPosition->setVal(TargetPosition->getNewVal());
-    return(true);        
+    updated = false;
   }
+}
 };
       
