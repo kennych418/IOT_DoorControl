@@ -49,7 +49,7 @@ void loop(){
       refresh = 100;
     else if (refresh < 0)
       refresh = 0;
-    CurrentPosition->setVal(refresh);
+    CurrentPosition->setVal((uint8_t)refresh);
     refreshTime = millis();
   }
   //Timer Overflow Case
